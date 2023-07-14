@@ -1,0 +1,13 @@
+.idea/*
+idea/*
+temp/*
+build/
+*.patch
+*.log
+*.rej
+vendor/*
+*.iml
+ontology-tool
+*.dat
+main.exe 
+poly-validator-tool
