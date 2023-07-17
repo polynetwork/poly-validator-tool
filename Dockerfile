@@ -1,11 +1,10 @@
-FROM debian:bullseye-20230703-slim
-RUN apt-get update && apt-get install -y git unzip wget curl build-essential
-RUN curl -L https://golang.org/dl/go1.20.linux-`dpkg --print-architecture`.tar.gz | tar -C /usr/local -xzf -
+FROM golang:1.20-bullseye
+
+ARG commit=master
 
 WORKDIR /workspace
 
-ARG commit=main
+COPY . ./
 
-RUN ln -s /usr/local/go/bin/go /usr/bin/go
-RUN git clone https://github.com/polynetwork/poly-validator-tool.git  && \
-    cd poly-validator-tool && git checkout ${commit} && go build
+RUN go mod download
+RUN go build
