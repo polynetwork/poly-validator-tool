@@ -11,5 +11,5 @@ build: clean
 	@echo "Building poly-validator-tool binary in container"
 	docker build --no-cache --build-arg commit=$(COMMIT) -t go-tool-build -f ./Dockerfile .
 	docker container create --name go-tool-temp go-tool-build
-	docker container cp go-tool-temp:/workspace/poly-validator-tool/poly-validator-tool .
+	docker container cp go-tool-temp:/workspace/poly-validator-tool .
 	sha256sum poly-validator-tool
