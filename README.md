@@ -6,7 +6,10 @@ We use wallet_validator.dat as validator account, use wallet_auth.dat as the aut
 
 ## Pull poly-validator-tool repo:
 https://github.com/polynetwork/poly-validator-tool
-, and edit config file: config.json to mainnet rpc endpoint.(http://seed1.poly.network:20336)
+, and edit config file: config.json to mainnet rpc endpoint.(http://seed1.poly.network:20336), then run command:
+```shell
+make build
+```
 
 ## RegisterCandidate
 Edit config file in ./params/RegisterCandidate.json, PeerPubkey is the public key of wallet_validator.dat, and Path is the path of wallet_auth.dat, then run command:
