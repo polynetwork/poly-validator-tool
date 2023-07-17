@@ -7,4 +7,6 @@ func (t *Tool) RegMethods() {
 	t.RegMethod("GenCommitDposTx", GenCommitDposTx)
 	t.RegMethod("MultiSign", MultiSign)
 	t.RegMethod("SendTx", SendTx)
+	t.RegMethod("RegisterWhiteList", RegisterWhiteList)
+	t.RegMethod("ApproveWhiteList", ApproveWhiteList)
 }

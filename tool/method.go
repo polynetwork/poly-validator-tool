@@ -9,6 +9,7 @@ import (
 
 	"github.com/ontio/ontology-crypto/keypair"
 	"github.com/polynetwork/poly-validator-tool/log"
+	"github.com/polynetwork/poly/common"
 	"github.com/polynetwork/poly/core/types"
 	"github.com/polynetwork/poly/native/service/governance/node_manager"
 	"github.com/polynetwork/poly/native/service/utils"
@@ -235,5 +236,72 @@ func SendTx(t *Tool) error {
 	}
 	log.Infof("tx hash is: %s", hash.ToHexString())
 
+	return nil
+}
+
+type RegisterWhiteListParam struct {
+	AddressList []string
+	Path        string
+}
+
+func RegisterWhiteList(t *Tool) error {
+	data, err := ioutil.ReadFile("./params/RegisterWhiteList.json")
+	if err != nil {
+		return fmt.Errorf("ioutil.ReadFile failed %v", err)
+	}
+	registerWhiteListParam := new(RegisterWhiteListParam)
+	err = json.Unmarshal(data, registerWhiteListParam)
+	if err != nil {
+		return fmt.Errorf("json.Unmarshal failed %v", err)
+	}
+
+	addressList := make([]common.Address, 0)
+	for _, addr := range registerWhiteListParam.AddressList {
+		address, err := common.AddressFromBase58(addr)
+		if err != nil {
+			return fmt.Errorf("common.AddressFromBase58 failed %v", err)
+		}
+		addressList = append(addressList, address)
+	}
+
+	user, err := getAccountByPassword(t, registerWhiteListParam.Path)
+	if err != nil {
+		return err
+	}
+	txHash, err := t.sdk.Native.Rm.RegisterRelayer(addressList, user)
+	if err != nil {
+		return fmt.Errorf("ctx.Ont.Native.Rm.RegisterRelayer error: %v", err)
+	}
+	log.Infof("RegisterWhiteList txHash is: %v", txHash.ToHexString())
+	waitForBlock(t)
+	return nil
+}
+
+type ApproveWhiteListParam struct {
+	ID   uint64
+	Path string
+}
+
+func ApproveWhiteList(t *Tool) error {
+	data, err := ioutil.ReadFile("./params/ApproveWhiteList.json")
+	if err != nil {
+		return fmt.Errorf("ioutil.ReadFile failed %v", err)
+	}
+	approveWhiteListParam := new(ApproveWhiteListParam)
+	err = json.Unmarshal(data, approveWhiteListParam)
+	if err != nil {
+		return fmt.Errorf("json.Unmarshal failed %v", err)
+	}
+
+	user, err := getAccountByPassword(t, approveWhiteListParam.Path)
+	if err != nil {
+		return err
+	}
+	txHash, err := t.sdk.Native.Rm.ApproveRegisterRelayer(approveWhiteListParam.ID, user)
+	if err != nil {
+		return fmt.Errorf("ctx.Ont.Native.Rm.RegisterRelayer error: %v", err)
+	}
+	log.Infof("ApproveWhiteList txHash is: %v", txHash.ToHexString())
+	waitForBlock(t)
 	return nil
 }
