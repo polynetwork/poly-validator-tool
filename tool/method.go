@@ -305,3 +305,56 @@ func ApproveWhiteList(t *Tool) error {
 	waitForBlock(t)
 	return nil
 }
+
+func GetPeerPoolMap(t *Tool) error {
+	contractAddress := utils.NodeManagerContractAddress
+	governanceView, err := getGovernanceView(t)
+	if err != nil {
+		return fmt.Errorf("getGovernanceView error: %s", err)
+	}
+	peerPoolMap := &node_manager.PeerPoolMap{
+		PeerPoolMap: make(map[string]*node_manager.PeerPoolItem),
+	}
+	viewBytes := utils.GetUint32Bytes(governanceView.View)
+	key := ConcatKey([]byte(node_manager.PEER_POOL), viewBytes)
+	value, err := t.sdk.GetStorage(contractAddress.ToHexString(), key)
+	if err != nil {
+		return fmt.Errorf("getStorage error")
+	}
+	if err := peerPoolMap.Deserialization(common.NewZeroCopySource(value)); err != nil {
+		return fmt.Errorf("deserialize, deserialize peerPoolMap error")
+	}
+	for _, v := range peerPoolMap.PeerPoolMap {
+		fmt.Println("###########################################")
+		fmt.Println("Index is:", v.Index)
+		fmt.Println("PeerPubkey is:", v.PeerPubkey)
+		fmt.Println("Address is:", v.Address.ToBase58())
+		fmt.Println("Status is:", v.Status)
+	}
+	return nil
+}
+
+func GetGovernanceView(t *Tool) error {
+	governanceView, err := getGovernanceView(t)
+	if err != nil {
+		return fmt.Errorf("getGovernanceView failed %v", err)
+	}
+	fmt.Println("governanceView.View is:", governanceView.View)
+	fmt.Println("governanceView.TxHash is:", governanceView.TxHash.ToHexString())
+	fmt.Println("governanceView.Height is:", governanceView.Height)
+	return nil
+}
+
+func getGovernanceView(t *Tool) (*node_manager.GovernanceView, error) {
+	contractAddress := utils.NodeManagerContractAddress
+	governanceView := new(node_manager.GovernanceView)
+	key := []byte(node_manager.GOVERNANCE_VIEW)
+	value, err := t.sdk.GetStorage(contractAddress.ToHexString(), key)
+	if err != nil {
+		return nil, fmt.Errorf("getStorage error: %s", err)
+	}
+	if err := governanceView.Deserialization(common.NewZeroCopySource(value)); err != nil {
+		return nil, fmt.Errorf("deserialize, deserialize governanceView error: %s", err)
+	}
+	return governanceView, nil
+}
