@@ -9,4 +9,6 @@ func (t *Tool) RegMethods() {
 	t.RegMethod("SendTx", SendTx)
 	t.RegMethod("RegisterWhiteList", RegisterWhiteList)
 	t.RegMethod("ApproveWhiteList", ApproveWhiteList)
+	t.RegMethod("GetPeerPoolMap", GetPeerPoolMap)
+	t.RegMethod("GetGovernanceView", GetGovernanceView)
 }
