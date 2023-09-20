@@ -41,3 +41,23 @@ We will send you a raw tx in hex string format, then you need to edit config fil
 and input password of wallet_old.dat.
 Next send the output string in std-out to us.
 
+## RegisterSideChain
+Edit config file in ./params/RegisterSideChain.json, Path is the path of wallet_auth.dat, Chainid is chainId of RegisterSideChain, Router is 0 (voter), Name is chain name, BlocksToWait is 1, CCMCAddress is chain CCM, Extra is nil, then run command:
+```shell
+./poly-validator-tool -m RegisterSideChain
+```
+and input password of wallet_auth.dat.
+
+## ApproveRegisterSideChain
+Edit config file in ./params/ApproveRegisterSideChain.json, Path is the path of wallet_old.dat, Chainid is chainId of ApproveRegisterSideChain, then run command:
+```shell
+./poly-validator-tool -m ApproveRegisterSideChain
+```
+and input password of wallet_old.dat.
+
+## ApproveUpdateSideChain
+Edit config file in ./params/ApproveUpdateSideChain.json, Path is the path of wallet_old.dat, Chainid is chainId of ApproveUpdateSideChain, then run command:
+```shell
+./poly-validator-tool -m ApproveUpdateSideChain
+```
+and input password of wallet_old.dat.

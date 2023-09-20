@@ -11,4 +11,7 @@ func (t *Tool) RegMethods() {
 	t.RegMethod("ApproveWhiteList", ApproveWhiteList)
 	t.RegMethod("GetPeerPoolMap", GetPeerPoolMap)
 	t.RegMethod("GetGovernanceView", GetGovernanceView)
+	t.RegMethod("RegisterSideChain", RegisterSideChain)
+	t.RegMethod("ApproveRegisterSideChain", ApproveRegisterSideChain)
+	t.RegMethod("ApproveUpdateSideChain", ApproveUpdateSideChain)
 }
