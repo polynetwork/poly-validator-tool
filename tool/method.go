@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strings"
 	"time"
 
 	"github.com/ontio/ontology-crypto/keypair"
@@ -357,4 +358,103 @@ func getGovernanceView(t *Tool) (*node_manager.GovernanceView, error) {
 		return nil, fmt.Errorf("deserialize, deserialize governanceView error: %s", err)
 	}
 	return governanceView, nil
+}
+
+type SideChainParam struct {
+	Path         string
+	Chainid      uint64
+	Router       uint64
+	Name         string
+	BlocksToWait uint64
+	CCMCAddress  string
+	Extra        string
+}
+
+func RegisterSideChain(t *Tool) error {
+	data, err := ioutil.ReadFile("./params/RegisterSideChain.json")
+	if err != nil {
+		return fmt.Errorf("ioutil.ReadFile failed %v", err)
+	}
+	sideChainParam := new(SideChainParam)
+	err = json.Unmarshal(data, sideChainParam)
+	if err != nil {
+		return fmt.Errorf("json.Unmarshal failed %v", err)
+	}
+
+	user, err := getAccountByPassword(t, sideChainParam.Path)
+	if err != nil {
+		return err
+	}
+	CCMCAddress, err := hex.DecodeString(strings.ToLower(strings.TrimPrefix(sideChainParam.CCMCAddress, "0x")))
+	if err != nil {
+		return fmt.Errorf("hex.DecodeString error %v", err)
+	}
+	txHash, err := t.sdk.Native.Scm.RegisterSideChainExt(user.Address, sideChainParam.Chainid,
+		sideChainParam.Router, sideChainParam.Name, sideChainParam.BlocksToWait,
+		CCMCAddress, []byte(sideChainParam.Extra), user)
+	if err != nil {
+		return fmt.Errorf("t.sdk.Native.Scm.RegisterSideChain error: %v", err)
+	}
+	fmt.Printf("RegisterSideChain txHash is: %v\n", txHash.ToHexString())
+	waitForBlock(t)
+	return nil
+}
+
+type ApproveSideChainParam struct {
+	Path    []string
+	Chainid uint64
+}
+
+func ApproveRegisterSideChain(t *Tool) error {
+	data, err := ioutil.ReadFile("./params/ApproveRegisterSideChain.json")
+	if err != nil {
+		return fmt.Errorf("ioutil.ReadFile failed %v", err)
+	}
+	approveSideChainParam := new(ApproveSideChainParam)
+	err = json.Unmarshal(data, approveSideChainParam)
+	if err != nil {
+		return fmt.Errorf("json.Unmarshal failed %v", err)
+	}
+
+	time.Sleep(1 * time.Second)
+	for _, path := range approveSideChainParam.Path {
+		user, err := getAccountByPassword(t, path)
+		if err != nil {
+			return err
+		}
+		txHash, err := t.sdk.Native.Scm.ApproveRegisterSideChain(approveSideChainParam.Chainid, user)
+		if err != nil {
+			return fmt.Errorf("t.sdk.Native.Scm.ApproveRegisterSideChain error: %v", err)
+		}
+		fmt.Printf("ApproveRegisterSideChain txHash is: %v\n", txHash.ToHexString())
+	}
+	waitForBlock(t)
+	return nil
+}
+
+func ApproveUpdateSideChain(t *Tool) error {
+	data, err := ioutil.ReadFile("./params/ApproveUpdateSideChain.json")
+	if err != nil {
+		return fmt.Errorf("ioutil.ReadFile failed %v", err)
+	}
+	approveSideChainParam := new(ApproveSideChainParam)
+	err = json.Unmarshal(data, approveSideChainParam)
+	if err != nil {
+		return fmt.Errorf("json.Unmarshal failed %v", err)
+	}
+
+	time.Sleep(1 * time.Second)
+	for _, path := range approveSideChainParam.Path {
+		user, err := getAccountByPassword(t, path)
+		if err != nil {
+			return err
+		}
+		txHash, err := t.sdk.Native.Scm.ApproveUpdateSideChain(approveSideChainParam.Chainid, user)
+		if err != nil {
+			return fmt.Errorf("ctx.Ont.Native.Scm.ApproveUpdateSideChain error: %v", err)
+		}
+		fmt.Printf("ApproveUpdateSideChain txHash is: %v\n", txHash.ToHexString())
+	}
+	waitForBlock(t)
+	return nil
 }
