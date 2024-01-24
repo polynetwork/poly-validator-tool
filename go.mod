@@ -3,6 +3,7 @@ module github.com/polynetwork/poly-validator-tool
 go 1.20
 
 require (
+	github.com/Zilliqa/gozilliqa-sdk v1.2.1-0.20210927032600-4c733f2cb879
 	github.com/ontio/ontology-crypto v1.0.9
 	github.com/polynetwork/poly v1.8.3
 	github.com/polynetwork/poly-go-sdk v0.0.0-20210114120411-3dcba035134f
@@ -15,7 +16,6 @@ require (
 	github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 // indirect
 	github.com/VictoriaMetrics/fastcache v1.5.7 // indirect
 	github.com/Workiva/go-datastructures v1.0.52 // indirect
-	github.com/Zilliqa/gozilliqa-sdk v1.2.1-0.20210927032600-4c733f2cb879 // indirect
 	github.com/allegro/bigcache v1.2.1 // indirect
 	github.com/aristanetworks/goarista v0.0.0-20190607111240-52c2a7864a08 // indirect
 	github.com/blocktree/go-owcrypt v1.1.10 // indirect
@@ -90,6 +90,7 @@ require (
 	github.com/tendermint/tendermint v0.33.7 // indirect
 	github.com/tendermint/tm-db v0.5.1 // indirect
 	github.com/tyler-smith/go-bip39 v1.0.2 // indirect
+	github.com/ybbus/jsonrpc v2.1.2+incompatible // indirect
 	github.com/zquestz/grab v0.0.0-20190224022517-abcee96e61b1 // indirect
 	go.etcd.io/bbolt v1.3.5 // indirect
 	golang.org/x/crypto v0.0.0-20211117183948-ae814b36b871 // indirect
