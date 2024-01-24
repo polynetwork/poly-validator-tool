@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/Zilliqa/gozilliqa-sdk/core"
 	"github.com/Zilliqa/gozilliqa-sdk/provider"
-	poly_go_sdk "github.com/polynetwork/poly-go-sdk"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -571,6 +570,7 @@ func GetZilGenesisHeader(t *Tool) error {
 type SignatureDataParam struct {
 	Path      string
 	SigDataIn string
+	Pubkeys   []string
 	SigM      uint16
 }
 
@@ -584,6 +584,18 @@ func SignatureData(t *Tool) error {
 	if err != nil {
 		return fmt.Errorf("json.Unmarshal signatureDataParam failed %v", err)
 	}
+	pubKeys := make([]keypair.PublicKey, 0)
+	for _, s := range signatureDataParam.Pubkeys {
+		sBytes, err := hex.DecodeString(s)
+		if err != nil {
+			return fmt.Errorf("hex.DecodeString Pubkeys error:%s", err)
+		}
+		pk, err := keypair.DeserializePublicKey(sBytes)
+		if err != nil {
+			return fmt.Errorf("keypair.DeserializePublicKey error:%s", err)
+		}
+		pubKeys = append(pubKeys, pk)
+	}
 	tx, err := poly_go_sdk_utils.TransactionFromHexString(signatureDataParam.SigDataIn)
 	if err != nil {
 		return fmt.Errorf("poly_go_sdk_utils.TransactionFromHexString failed %v", err)
@@ -592,10 +604,7 @@ func SignatureData(t *Tool) error {
 	if err != nil {
 		return fmt.Errorf("getAccountByPassword failed %v", err)
 	}
-	pubKeys := make([]keypair.PublicKey, 0)
-	pubKeys = append(pubKeys, user.PublicKey)
-	fmt.Println(user.Address.ToHexString())
-	err = SignMToTransaction(tx, signatureDataParam.SigM, pubKeys, user)
+	err = t.sdk.MultiSignToTransaction(tx, signatureDataParam.SigM, pubKeys, user)
 	if err != nil {
 		return fmt.Errorf("SignMToTransaction failed, err: %s", err)
 	}
@@ -614,48 +623,6 @@ func SignatureData(t *Tool) error {
 		return fmt.Errorf("write file sigDataOut.txt err: %v", err)
 	}
 	fmt.Println("success SignatureData, write sigDataOut.txt")
-	return nil
-}
-
-func SignMToTransaction(tx *types.Transaction, m uint16, pubKeys []keypair.PublicKey, signer *poly_go_sdk.Account) error {
-	fmt.Println(len(tx.Sigs))
-	validPubKey := false
-	for _, pk := range pubKeys {
-		if keypair.ComparePublicKey(pk, signer.GetPublicKey()) {
-			validPubKey = true
-			break
-		}
-	}
-	if !validPubKey {
-		return fmt.Errorf("invalid signer")
-	}
-	txHash := tx.Hash()
-	if len(tx.Sigs) == 0 {
-		tx.Sigs = make([]types.Sig, 0)
-	}
-	sigData, err := signer.Sign(txHash.ToArray())
-	if err != nil {
-		return fmt.Errorf("sign error:%s", err)
-	}
-	hasMutilSig := false
-	for i, sigs := range tx.Sigs {
-		if poly_go_sdk_utils.PubKeysEqual(sigs.PubKeys, pubKeys) {
-			hasMutilSig = true
-			if poly_go_sdk_utils.HasAlreadySig(txHash.ToArray(), signer.GetPublicKey(), sigs.SigData) {
-				break
-			}
-			sigs.SigData = append(sigs.SigData, sigData)
-			tx.Sigs[i] = sigs
-			break
-		}
-	}
-	if !hasMutilSig {
-		tx.Sigs = append(tx.Sigs, types.Sig{
-			PubKeys: pubKeys,
-			M:       m,
-			SigData: [][]byte{sigData},
-		})
-	}
 	return nil
 }
 
