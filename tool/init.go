@@ -14,4 +14,7 @@ func (t *Tool) RegMethods() {
 	t.RegMethod("RegisterSideChain", RegisterSideChain)
 	t.RegMethod("ApproveRegisterSideChain", ApproveRegisterSideChain)
 	t.RegMethod("ApproveUpdateSideChain", ApproveUpdateSideChain)
+	t.RegMethod("GetZilGenesisHeader", GetZilGenesisHeader)
+	t.RegMethod("SignatureData", SignatureData)
+	t.RegMethod("SyncZilGenesisHeader", SyncZilGenesisHeader)
 }
