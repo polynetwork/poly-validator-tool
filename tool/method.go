@@ -4,13 +4,14 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/Zilliqa/gozilliqa-sdk/core"
-	"github.com/Zilliqa/gozilliqa-sdk/provider"
 	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/Zilliqa/gozilliqa-sdk/core"
+	"github.com/Zilliqa/gozilliqa-sdk/provider"
 
 	"github.com/ontio/ontology-crypto/keypair"
 	poly_go_sdk_utils "github.com/polynetwork/poly-go-sdk/utils"
@@ -75,6 +76,34 @@ func ApproveCandidate(t *Tool) error {
 		return fmt.Errorf("ctx.Ont.Native.Nm.ApproveCandidate error: %v", err)
 	}
 	log.Infof("ApproveCandidate txHash is: %v", txHash.ToHexString())
+	err = waitForBlock(t)
+	if err != nil {
+		return fmt.Errorf("waitForBlock failed: %s", err)
+	}
+	return nil
+}
+
+func BlackNode(t *Tool) error {
+	data, err := ioutil.ReadFile("./params/BlackNode.json")
+	if err != nil {
+		return fmt.Errorf("ioutil.ReadFile failed %v", err)
+	}
+	peerParam := new(PeerParam)
+	err = json.Unmarshal(data, peerParam)
+	if err != nil {
+		return fmt.Errorf("json.Unmarshal failed %v", err)
+	}
+
+	time.Sleep(1 * time.Second)
+	user, err := getAccountByPassword(t, peerParam.Path)
+	if err != nil {
+		return err
+	}
+	txHash, err := t.sdk.Native.Nm.BlackNode([]string{peerParam.PeerPubkey}, user)
+	if err != nil {
+		return fmt.Errorf("ctx.Ont.Native.Nm.BlackNode error: %v", err)
+	}
+	log.Infof("BlackNode txHash is: %v", txHash.ToHexString())
 	err = waitForBlock(t)
 	if err != nil {
 		return fmt.Errorf("waitForBlock failed: %s", err)
